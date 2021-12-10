@@ -1,17 +1,42 @@
-import React, { useEffect, useState } from "react";
-import { button } from "react-router-dom";
+import React, { useState } from "react";
 import "react-circular-progressbar/dist/styles.css";
 import AboutUs from "../../component/AboutUs";
 import TabBox from "../../component/TabBox";
 import TodoTable from "../../component/TodoTable";
-import { useStopwatch } from "react-timer-hook";
+import { useTimer } from "react-timer-hook";
 
 const Home = ({ color }) => {
   const [stopwatchbtntxt, setStopwatchbtntxt] = useState("start");
+  const [stop, setStop] = useState(false);
 
-  const { seconds, minutes, start, pause, reset } = useStopwatch({
+  const time = new Date();
+  time.setSeconds(time.getSeconds() + 1500);
+
+  let expiryTimestamp = time;
+
+  const { seconds, minutes, start, pause, resume, restart } = useTimer({
+    expiryTimestamp,
     autoStart: false,
+    onExpire: () => console.warn("onExpire called"),
   });
+
+  const startTimer = () => {
+    if (stop === true) {
+      resume();
+    } else {
+      start();
+    }
+    setStopwatchbtntxt("pause");
+    setStop(false);
+  };
+
+  const reset = () => {
+    const time = new Date();
+    time.setSeconds(time.getSeconds() + 1500);
+    restart(time);
+    pause();
+    setStop(true);
+  };
 
   return (
     <div>
@@ -80,10 +105,7 @@ const Home = ({ color }) => {
                     <button
                       className="btn rounded text-white mb-4"
                       style={{ backgroundColor: color }}
-                      onClick={() => {
-                        start();
-                        setStopwatchbtntxt("pause");
-                      }}
+                      onClick={() => startTimer()}
                     >
                       Start
                     </button>
@@ -93,10 +115,21 @@ const Home = ({ color }) => {
                       style={{ backgroundColor: color }}
                       onClick={() => {
                         pause();
-                        setStopwatchbtntxt("start");
+                        setStopwatchbtntxt("resume");
                       }}
                     >
                       Pause
+                    </button>
+                  ) : stopwatchbtntxt === "resume" ? (
+                    <button
+                      className="btn rounded text-white mb-4"
+                      style={{ backgroundColor: color }}
+                      onClick={() => {
+                        resume();
+                        setStopwatchbtntxt("pause");
+                      }}
+                    >
+                      Resume
                     </button>
                   ) : (
                     ""
@@ -105,9 +138,10 @@ const Home = ({ color }) => {
                     className="btn rounded bg-white"
                     style={{ color }}
                     onClick={() => {
+                      // restart(time);
+                      // pause();
                       reset();
                       setStopwatchbtntxt("start");
-                      pause();
                     }}
                   >
                     Reset

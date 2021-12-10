@@ -10,9 +10,9 @@ const getTodoListSuccess = (data) => {
 
 export const getTodoList = (flag) => {
   let taskList = {};
-  if (flag === "Todos") {
+  if (flag === "Todo") {
     taskList = TaskList.todos;
-  } else if (flag === "Projects") {
+  } else if (flag === "Project") {
     taskList = TaskList.projects;
   } else {
     taskList = TaskList.history;

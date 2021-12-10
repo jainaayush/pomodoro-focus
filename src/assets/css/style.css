@@ -699,3 +699,6 @@ a:hover {
     max-width: 100%;
   }
 }
+.btn.rounded{
+  width: 200px;
+}

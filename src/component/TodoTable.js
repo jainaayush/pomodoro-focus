@@ -7,15 +7,24 @@ import Modal from "react-modal";
 const TodoTable = ({ color }) => {
   const TaskList = useSelector((state) => state.getTodoReducer.taskList);
 
-  const [flag, setFlag] = useState("Todos");
+  const [flag, setFlag] = useState("Todo");
   const [modal, setModal] = useState(false);
   const [formValues, setFormValues] = useState({
     name: "",
     total: 0,
     completed: 0,
   });
-
+  const [numErr, setNumErr] = useState("");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setFormValues({
+      name: "",
+      total: null,
+      completed: 0,
+    });
+    setNumErr("");
+  }, [modal]);
 
   useEffect(() => {
     dispatch(getTodoList(flag));
@@ -36,6 +45,18 @@ const TodoTable = ({ color }) => {
     },
   };
 
+  const handleNumberChange = (e) => {
+    if (e.target.value > 0) {
+      setFormValues({ ...formValues, total: Math.abs(e.target.value) });
+      setNumErr("");
+    } else if(e.target.value === "") {
+      setNumErr("");
+    }
+    else{
+      setNumErr("Please Enter a valid number !");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     let temp = formValues;
@@ -43,7 +64,7 @@ const TodoTable = ({ color }) => {
     setModal(false);
     setFormValues({
       name: "",
-      total: 0,
+      total: null,
       completed: 0,
     });
   };
@@ -59,7 +80,7 @@ const TodoTable = ({ color }) => {
                 style={{ color }}
                 data-toggle="tab"
                 to=""
-                onClick={() => setFlag("Todos")}
+                onClick={() => setFlag("Todo")}
               >
                 Todos
               </Link>
@@ -70,7 +91,7 @@ const TodoTable = ({ color }) => {
                 style={{ color }}
                 data-toggle="tab"
                 to=""
-                onClick={() => setFlag("Projects")}
+                onClick={() => setFlag("Project")}
               >
                 Projects
               </Link>
@@ -139,6 +160,7 @@ const TodoTable = ({ color }) => {
                     setFormValues({ ...formValues, name: e.target.value })
                   }
                   value={formValues.name}
+                  required
                 />
               </div>
               <div>
@@ -147,11 +169,14 @@ const TodoTable = ({ color }) => {
                   type="number"
                   className=" input mb-4"
                   placeholder="Total Task"
-                  onChange={(e) =>
-                    setFormValues({ ...formValues, total: e.target.value })
-                  }
+                  onChange={(e) => handleNumberChange(e)}
                   value={formValues.total}
+                  min="1"
+                  required
                 />
+                <div className="d-flex justify-content-center mb-3">
+                  <span style={{ color: "red" }}>{numErr}</span>
+                </div>
               </div>
               <div className="mb-2" style={{ display: "flex" }}>
                 <button
