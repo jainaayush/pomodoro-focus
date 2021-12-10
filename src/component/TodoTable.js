@@ -1,21 +1,52 @@
-import React, { useState } from "react";
-import { TaskList } from "../helpers/data";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getTodoList } from "../redux/actions/GetTodoList";
+import { useDispatch, useSelector } from "react-redux";
+import Modal from "react-modal";
 
 const TodoTable = ({ color }) => {
-  const [flag, setFlag] = useState("Todos");
+  const TaskList = useSelector((state) => state.getTodoReducer.taskList);
 
-  const getTodoList = () => {
-    if ( flag === "Todos" ) {
-      return TaskList.todos;
-    } 
-    else if ( flag === "Projects" ) {
-      return TaskList.projects;
-    }
-    else {
-      return TaskList.history;
-    }
-  }
+  const [flag, setFlag] = useState("Todos");
+  const [modal, setModal] = useState(false);
+  const [formValues, setFormValues] = useState({
+    name: "",
+    total: 0,
+    completed: 0,
+  });
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getTodoList(flag));
+  }, [flag]);
+
+  const handleClick = () => {
+    setModal(true);
+  };
+
+  const customStyles = {
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+    },
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let temp = formValues;
+    TaskList.push(temp);
+    setModal(false);
+    setFormValues({
+      name: "",
+      total: 0,
+      completed: 0,
+    });
+  };
 
   return (
     <div>
@@ -25,7 +56,7 @@ const TodoTable = ({ color }) => {
             <li className="nav-item">
               <Link
                 className="nav-link active"
-                style={{color}}
+                style={{ color }}
                 data-toggle="tab"
                 to=""
                 onClick={() => setFlag("Todos")}
@@ -36,7 +67,7 @@ const TodoTable = ({ color }) => {
             <li className="nav-item">
               <Link
                 className="nav-link"
-                style={{color}}
+                style={{ color }}
                 data-toggle="tab"
                 to=""
                 onClick={() => setFlag("Projects")}
@@ -47,7 +78,7 @@ const TodoTable = ({ color }) => {
             <li className="nav-item">
               <Link
                 className="nav-link"
-                style={{color}}
+                style={{ color }}
                 data-toggle="tab"
                 to=""
                 onClick={() => setFlag("History")}
@@ -60,9 +91,10 @@ const TodoTable = ({ color }) => {
       </div>
       <div className="tab-content">
         <div className="tab-pane active" id="todos1">
-          {getTodoList().map((item, index) => {
+          {TaskList.map((item, index) => {
             return (
-              <div key={index}
+              <div
+                key={index}
                 className="row align-items-center todo-box  "
                 style={{
                   color,
@@ -71,11 +103,7 @@ const TodoTable = ({ color }) => {
               >
                 <div className="col-md-9 col-sm-9 col-9">
                   <label className="checkbox-main d-flex align-items-center">
-                    <input
-                      name={index}
-                      type="checkbox"
-                      style={{ color }}
-                    />
+                    <input name={index} type="checkbox" style={{ color }} />
                     <span
                       className={`checkmark ${
                         color === "#024A46" ? "checkmark-green" : ""
@@ -92,6 +120,66 @@ const TodoTable = ({ color }) => {
               </div>
             );
           })}
+          <Modal
+            isOpen={modal}
+            onRequestClose={() => setModal(false)}
+            style={customStyles}
+          >
+            <form onSubmit={(e) => handleSubmit(e)}>
+              <h1 className="modal-title" style={{ color }}>
+                Add {flag}
+              </h1>
+              <div className="px-py-2">
+                <input
+                  name="Task Name"
+                  type="text"
+                  className="input mb-3"
+                  placeholder="Task Name"
+                  onChange={(e) =>
+                    setFormValues({ ...formValues, name: e.target.value })
+                  }
+                  value={formValues.name}
+                />
+              </div>
+              <div>
+                <input
+                  name="Total Task"
+                  type="number"
+                  className=" input mb-4"
+                  placeholder="Total Task"
+                  onChange={(e) =>
+                    setFormValues({ ...formValues, total: e.target.value })
+                  }
+                  value={formValues.total}
+                />
+              </div>
+              <div className="mb-2" style={{ display: "flex" }}>
+                <button
+                  className="btn rounded mr-2"
+                  style={{ backgroundColor: "white", color }}
+                  onClick={() => setModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn rounded text-white"
+                  style={{ backgroundColor: color }}
+                  type="submit"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </Modal>
+          <div className="d-flex justify-content-center">
+            <button
+              className="btn rounded text-white mb-4"
+              style={{ backgroundColor: color }}
+              onClick={() => handleClick()}
+            >
+              Add {flag}
+            </button>
+          </div>
         </div>
       </div>
     </div>

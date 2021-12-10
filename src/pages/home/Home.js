@@ -1,12 +1,18 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { button } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
 import AboutUs from "../../component/AboutUs";
 import TabBox from "../../component/TabBox";
 import TodoTable from "../../component/TodoTable";
+import { useStopwatch } from "react-timer-hook";
 
 const Home = ({ color }) => {
-  
+  const [stopwatchbtntxt, setStopwatchbtntxt] = useState("start");
+
+  const { seconds, minutes, start, pause, reset } = useStopwatch({
+    autoStart: false,
+  });
+
   return (
     <div>
       <div className="container-fluid p-0">
@@ -48,7 +54,15 @@ const Home = ({ color }) => {
                                   style={{ color }}
                                 >
                                   <div className="">
-                                    <span>18:55</span>
+                                    <span>
+                                      <span>
+                                        {minutes < 10 ? `0${minutes}` : minutes}
+                                      </span>
+                                      :
+                                      <span>
+                                        {seconds < 10 ? `0${seconds}` : seconds}
+                                      </span>
+                                    </span>
                                     <p style={{ color }}>WORKING ON</p>
                                     <strong style={{ color }}>Laundry</strong>
                                   </div>
@@ -62,20 +76,42 @@ const Home = ({ color }) => {
                   </div>
                 </div>
                 <div className="d-flex d-md-block btns-pr">
-                  <Link
-                    to=""
-                    className="btn rounded text-white mb-4"
-                    style={{ backgroundColor: color }}
-                  >
-                    Resume
-                  </Link>
-                  <Link
-                    to=""
+                  {stopwatchbtntxt === "start" ? (
+                    <button
+                      className="btn rounded text-white mb-4"
+                      style={{ backgroundColor: color }}
+                      onClick={() => {
+                        start();
+                        setStopwatchbtntxt("pause");
+                      }}
+                    >
+                      Start
+                    </button>
+                  ) : stopwatchbtntxt === "pause" ? (
+                    <button
+                      className="btn rounded text-white mb-4"
+                      style={{ backgroundColor: color }}
+                      onClick={() => {
+                        pause();
+                        setStopwatchbtntxt("start");
+                      }}
+                    >
+                      Pause
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                  <button
                     className="btn rounded bg-white"
                     style={{ color }}
+                    onClick={() => {
+                      reset();
+                      setStopwatchbtntxt("start");
+                      pause();
+                    }}
                   >
                     Reset
-                  </Link>
+                  </button>
                 </div>
               </div>
               <TodoTable color={color} />
